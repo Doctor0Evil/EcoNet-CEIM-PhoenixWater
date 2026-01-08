@@ -1,58 +1,63 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <unordered_map>
+#include <vector>
 #include <iomanip>
 #include "ceim/ceim_core.hpp"
 #include "ceim/qpudata.hpp"
 
-using namespace ceim;
+using ceim::Sample;
+using ceim::TimeSeries;
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cerr << "Usage: ecim_phx <qpudatashard.csv>\n";
-        return 1;
-    }
-    std::string path = argv[1];
-
-    auto rows = loadQpuData(path);
-    if (rows.empty()) {
-        std::cerr << "No rows loaded from " << path << "\n";
+    if (argc < 3) {
+        std::cerr << "Usage: phoenix_ceim <input_timeseries.csv> <output_karma.csv>\n";
         return 1;
     }
 
-    // Example: map parameter→ContaminantConfig with Arizona benchmarks.
-    std::unordered_map<std::string, ContaminantConfig> cfg;
-    cfg["PFBS"] = {"PFBS", 1.0, 4.0e-3};       // 4 ng/L expressed as µg/L for numeric stability
-    cfg["Ecoli"] = {"Ecoli", 3.0, 235.0};     // 235 MPN/100mL recreational criterion
-    cfg["TotalPhosphorus"] = {"TotalPhosphorus", 2.0, 0.10}; // 0.10 mg/L poor benchmark
-    cfg["SalinityTDS"] = {"SalinityTDS", 0.67, 650.0};       // 650 mg/L representative TDS
+    std::string inPath  = argv[1];
+    std::string outPath = argv[2];
 
-    // For this first CLI, treat each row as a degenerate “window” (no time dimension),
-    // with Q=1 m3/s, Δt=1 s to expose normalized impact logic.
-    std::vector<NodeImpactResult> results;
+    // Load Arizona qpudatashard metadata (PFBS, E. coli, TP, TDS)
+    auto contaminants = ceim::loadArizonaContaminants();
+    auto nodes        = ceim::loadPhoenixNodes();
 
-    for (const auto& r : rows) {
-        auto it = cfg.find(r.parameter);
-        if (it == cfg.end()) continue;
+    // Map stationid+parameter → time series
+    std::unordered_map<std::string, TimeSeries> seriesByKey;
+    ceim::loadTimeSeriesCSV(inPath, seriesByKey);
 
-        NodeConfig node{r.stationid, r.parameter, 0.0};
-        ContaminantConfig c = it->second;
-
-        Sample s;
-        s.t = 0.0;
-        s.Cin = r.value;
-        s.Cout = 0.0;   // pure removal scenario placeholder
-        s.Q = 1.0;
-
-        std::vector<Sample> series{ s };
-        auto res = computeNodeImpact(node, c, series);
-        results.push_back(res);
+    std::ofstream out(outPath);
+    if (!out.is_open()) {
+        std::cerr << "Unable to open output file " << outPath << "\n";
+        return 1;
     }
 
-    std::cout << "NodeId,Contaminant,Kn,MassLoad_kg\n";
-    for (const auto& r : results) {
-        std::cout << r.nodeId << "," << r.contaminantId << ","
-                  << std::setprecision(6) << r.Kn << ","
-                  << std::setprecision(6) << r.massLoad << "\n";
+    out << "node_id,waterbody,contaminant,stationid,karma_Kn,mass_load,unit_mass,"
+           "window_start,window_end,ecoimpactscore,notes\n";
+
+    for (const auto& node : nodes) {
+        for (const auto& cfg : contaminants) {
+            std::string key = node.nodeId + ":" + cfg.id;
+            auto it = seriesByKey.find(key);
+            if (it == seriesByKey.end()) {
+                continue;
+            }
+
+            auto result = ceim::computeNodeImpact(node, cfg, it->second);
+
+            out << node.nodeId << ','
+                << node.waterBody << ','
+                << cfg.id << ','
+                << key << ','
+                << std::setprecision(6) << std::scientific << result.Kn << ','
+                << std::setprecision(6) << std::scientific << result.massLoad << ','
+                << cfg.unit << "*s/m3,"
+                << "2024-01-01T00:00:00Z,"
+                << "2024-12-31T23:59:59Z,"
+                << "1.0,"
+                << "\"CEIM Phoenix annual Karma\"\n";
+        }
     }
 
     return 0;

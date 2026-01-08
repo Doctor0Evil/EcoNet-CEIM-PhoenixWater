@@ -1,0 +1,6 @@
+node_id,asset_type,waterbody,region,cpvm_profile,cin_baseline,cin_unit,q_avg,q_unit,horizon_s,ecoimpactscore,karma_per_unit,notes
+CAP-LP-PFBS-NODE,Reservoir,Lake Pleasant,Maricopa-Yavapai AZ,PFAS_PFBS_LP_v1,3.9,ng/L,50.0,m3/s,3600,0.88,1.0e6,"PFBS 3.9 ng/L at Lake Pleasant Parkway; CPVM enforces PFAS safety and energy-efficient control."
+PHX-TP-TREAT-01,Plant,Phoenix WTP,Central AZ,NUTRIENT_TP_V1,0.10,mg/L,3.0,m3/s,1800,0.70,5.0e5,"Gila-influenced TP ~0.10 mg/L; CPVM tunes coagulation/filtration for nutrient risk and cost."
+GILA-ECO-REACH-07,RiverReach,Gila River,Central AZ,E_COLI_GILA_V1,600,MPN/100mL,5.0,m3/s,900,0.92,2.0e6,"Impaired Gila reach for E. coli; CPVM supervises disinfection and diversions to cut microbial load."
+CRB-SAL-SHIFT-01,Basin,Colorado River Basin,Interstate CO-UT-WY-AZ,SALINITY_CRB_V1,650,mg/L,150.0,m3/s,86400,0.78,6.7e5,"Salinity control aligned with ~1.3 Mt/year basin reductions; CPVM balances pumps vs Karma gain."
+AZ-NPS-BMP-CLSTR-03,WatershedCluster,Upper Gila,Greenlee AZ,NPS_COMBO_ECO_TP_V1,0.15,mg/L,2.0,m3/s,7200,0.85,8.0e5,"Riparian fencing & buffers targeting 30–50% nutrient and E. coli reduction at cluster scale."

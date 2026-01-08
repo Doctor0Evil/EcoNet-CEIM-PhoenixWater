@@ -1,0 +1,5 @@
+node_id,waterbody,contaminant,stationid,karma_Kn,mass_load,unit_mass,window_start,window_end,ecoimpactscore,notes
+CAP-LP,Lake Pleasant,PFBS,CAP-LP-PFBS,1.23e+05,3.5e-03,ng*s/m3,2024-11-01T00:00:00Z,2024-11-30T23:59:59Z,0.85,PFBS 3.9 ng/L Nov 2024 CAP report low but monitored
+GILA-ESTRELLA,Gila River,Ecoli,USGS-09514100,4.56e+04,2.1e+08,MPN*s/m3,2025-05-01T00:00:00Z,2025-05-31T23:59:59Z,0.82,E. coli 410 MPN/100mL lower Gila impairment
+GILA-KELVIN,Gila River,TotalPhosphorus,USGS-09474000,7.89e+04,1.0e+02,mg*s/L,2024-08-01T00:00:00Z,2024-08-31T23:59:59Z,0.79,Nutrient-impaired reach near Kelvin
+CRB-SALINITY,Lower Colorado,SalinityTDS,CAP-COLORADO,6.70e+06,2.2e+05,tons*year,2024-01-01T00:00:00Z,2024-12-31T23:59:59Z,0.72,Salinity control program 220,000 tons/year managed
